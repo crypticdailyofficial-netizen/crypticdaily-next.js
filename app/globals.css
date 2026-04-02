@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-inter), sans-serif;
+  --font-heading: var(--font-space-grotesk), sans-serif;
+  --color-navy: #0A0F1E;
+  --color-surface: #111827;
+  --color-border: #1E2A3A;
+  --color-cyan: #00D4FF;
+  --color-purple: #7C3AED;
+  --color-up: #10B981;
+  --color-down: #EF4444;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-fade-in: fadeIn 0.3s ease-in;
+  --animate-slide-in: slideIn 0.3s ease-out;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideIn {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { 
+    background-color: #0A0F1E;
+    color: #F9FAFB;
+    font-family: var(--font-inter), sans-serif;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-space-grotesk), sans-serif;
+    font-weight: 700;
+    color: #F9FAFB;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #111827; }
+  ::-webkit-scrollbar-thumb { background: #1E2A3A; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #00D4FF40; }
+  ::selection { background: #00D4FF20; color: #00D4FF; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+  .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .font-heading { font-family: var(--font-space-grotesk), sans-serif; }
+  .text-balance { text-wrap: balance; }
+  .glow-cyan { box-shadow: 0 0 20px rgba(0,212,255,0.3); }
 }
