@@ -1,8 +1,14 @@
-import { sanityClient as client } from "@/lib/sanity/client";
+import { createClient } from "next-sanity";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://crypticdaily.com";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Cryptic Daily";
+const SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET;
+const SANITY_TOKEN = process.env.SANITY_API_TOKEN;
 
 const FEED_QUERY = `
   *[_type == "article" && defined(slug.current)] | order(publishedAt desc) [0...20] {
@@ -33,13 +39,35 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
+function createFeedClient() {
+  if (!SANITY_PROJECT_ID || !SANITY_DATASET) {
+    return null;
+  }
+
+  return createClient({
+    projectId: SANITY_PROJECT_ID,
+    dataset: SANITY_DATASET,
+    apiVersion: "2024-01-01",
+    useCdn: true,
+    perspective: "published",
+    token: SANITY_TOKEN,
+  });
+}
+
 export async function GET() {
   let articles: FeedArticle[] = [];
+  const client = createFeedClient();
 
-  try {
-    articles = await client.fetch(FEED_QUERY);
-  } catch (err) {
-    console.error("RSS feed: failed to fetch articles from Sanity", err);
+  if (client) {
+    try {
+      articles = await client.fetch(FEED_QUERY);
+    } catch (err) {
+      console.error("RSS feed: failed to fetch articles from Sanity", err);
+    }
+  } else {
+    console.warn(
+      "RSS feed: missing NEXT_PUBLIC_SANITY_PROJECT_ID or NEXT_PUBLIC_SANITY_DATASET",
+    );
   }
 
   const items = articles
