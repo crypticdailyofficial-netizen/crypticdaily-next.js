@@ -18,14 +18,51 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Cryptic Daily",
+  url: "https://crypticdaily.com",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://crypticdaily.com/logo.png",
+  },
+  sameAs: ["https://twitter.com/crypticdaily", "https://t.me/crypticdaily"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "editorial",
+    email: "editor@crypticdaily.com",
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Cryptic Daily",
+  url: "https://crypticdaily.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://crypticdaily.com/search?q={search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} — Crypto News & Market Analysis`,
-    template: `%s | ${SITE_NAME}`,
+    default: "Cryptic Daily — Crypto News & Analysis",
+    template: "%s | Cryptic Daily",
   },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
-  alternates: { canonical: SITE_URL },
+  alternates: {
+    canonical: SITE_URL,
+    types: {
+      "application/rss+xml": "/feed",
+    },
+  },
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
@@ -36,12 +73,32 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
+      </head>
       <body className="bg-[#0A0F1E] text-[#F9FAFB] font-sans antialiased min-h-screen">
+        <div className="pt-1 pb-2">
+          <PriceTicker />
+        </div>
         <Navbar />
-        <PriceTicker />
         <main>{children}</main>
         <Footer />
       </body>

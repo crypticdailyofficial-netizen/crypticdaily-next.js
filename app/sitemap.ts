@@ -1,37 +1,153 @@
-import { SITE_URL, MOCK_ARTICLES, CATEGORIES } from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const staticPages = [
-    { url: SITE_URL, lastModified: new Date(), changeFrequency: "hourly" as const, priority: 1.0 },
-    { url: `${SITE_URL}/news`, lastModified: new Date(), changeFrequency: "hourly" as const, priority: 0.9 },
-    { url: `${SITE_URL}/coins`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
-    { url: `${SITE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
-    { url: `${SITE_URL}/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
-    { url: `${SITE_URL}/privacy-policy`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.3 },
+import { SITE_URL } from "@/lib/constants";
+import { sanityClient } from "@/lib/sanity/client";
+import {
+  ALL_ARTICLE_SLUGS_QUERY,
+  ALL_AUTHOR_SLUGS_QUERY,
+  ALL_CATEGORY_SLUGS_QUERY,
+  CATEGORY_ARTICLE_COUNT_QUERY,
+} from "@/lib/sanity/queries";
+
+type ArticleSlugRecord = {
+  slug: string;
+  publishedAt?: string | null;
+};
+
+type CategorySlugRecord = {
+  slug: string;
+};
+
+type AuthorSlugRecord = {
+  slug: string;
+};
+
+const sitemapClient = sanityClient.withConfig({ useCdn: false });
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+
+  const staticRoutes: MetadataRoute.Sitemap = [
+    {
+      url: SITE_URL,
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 1.0,
+    },
+    {
+      url: `${SITE_URL}/news`,
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${SITE_URL}/contact`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${SITE_URL}/privacy-policy`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/advertise`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${SITE_URL}/disclaimer`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/editorial-policy`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
   ];
 
-  const articlePages = MOCK_ARTICLES.map((article) => ({
+  let articles: ArticleSlugRecord[] = [];
+  try {
+    articles = await sitemapClient.fetch<ArticleSlugRecord[]>(
+      ALL_ARTICLE_SLUGS_QUERY,
+    );
+  } catch {
+    articles = [];
+  }
+
+  let categories: CategorySlugRecord[] = [];
+  try {
+    categories = await sitemapClient.fetch<CategorySlugRecord[]>(
+      ALL_CATEGORY_SLUGS_QUERY,
+    );
+  } catch {
+    categories = [];
+  }
+
+  let authors: AuthorSlugRecord[] = [];
+  try {
+    authors = await sitemapClient.fetch<AuthorSlugRecord[]>(
+      ALL_AUTHOR_SLUGS_QUERY,
+    );
+  } catch {
+    authors = [];
+  }
+
+  const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
     url: `${SITE_URL}/news/${article.slug}`,
-    lastModified: new Date(article.publishedAt),
-    changeFrequency: "weekly" as const,
+    lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
+    changeFrequency: "weekly",
     priority: 0.8,
   }));
 
-  const categoryPages = CATEGORIES.map((cat) => ({
-    url: `${SITE_URL}/categories/${cat.slug}`,
-    lastModified: new Date(),
-    changeFrequency: "daily" as const,
-    priority: 0.7,
+  const categoryCounts = await Promise.all(
+    categories.map(async (category) => {
+      try {
+        const articleCount = await sitemapClient.fetch<number>(
+          CATEGORY_ARTICLE_COUNT_QUERY,
+          { slug: category.slug },
+        );
+
+        return { ...category, articleCount };
+      } catch {
+        return { ...category, articleCount: 0 };
+      }
+    }),
+  );
+
+  const categoryRoutes: MetadataRoute.Sitemap = categoryCounts
+    .filter((category) => category.articleCount >= 3)
+    .map((category) => ({
+      url: `${SITE_URL}/categories/${category.slug}`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.6,
+    }));
+
+  const authorRoutes: MetadataRoute.Sitemap = authors.map((author) => ({
+    url: `${SITE_URL}/author/${author.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.5,
   }));
 
-  const coinSlugs = ["bitcoin", "ethereum", "binancecoin", "solana", "cardano", "ripple", "dogecoin", "polkadot", "avalanche-2", "chainlink"];
-  const coinPages = coinSlugs.map((id) => ({
-    url: `${SITE_URL}/coins/${id}`,
-    lastModified: new Date(),
-    changeFrequency: "daily" as const,
-    priority: 0.7,
-  }));
-
-  return [...staticPages, ...articlePages, ...categoryPages, ...coinPages];
+  return [...staticRoutes, ...articleRoutes, ...categoryRoutes, ...authorRoutes];
 }

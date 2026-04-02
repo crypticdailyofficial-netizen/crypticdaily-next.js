@@ -1,98 +1,113 @@
-import Link from "next/link";
-import Image from "next/image";
-import { TRENDING_ARTICLES, MOCK_COINS } from "@/lib/constants";
-import { formatRelativeDate, formatPrice, formatPercentage } from "@/lib/utils";
+"use client";
 
-export function Sidebar() {
-  const gainers = MOCK_COINS.filter((c) => c.change24h > 0).sort((a, b) => b.change24h - a.change24h).slice(0, 3);
-  const losers = MOCK_COINS.filter((c) => c.change24h < 0).sort((a, b) => a.change24h - b.change24h).slice(0, 3);
+import Link from "next/link";
+import type { Article } from "@/types/article";
+
+const theme = {
+  mono: '"JetBrains Mono", "Fira Mono", ui-monospace, monospace',
+};
+
+const ArrowIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M5 12h14" />
+    <path d="m13 6 6 6-6 6" />
+  </svg>
+);
+
+function TrendingSection({ articles }: { articles: Article[] }) {
+  const visibleArticles = articles.slice(0, 5);
+
+  if (!visibleArticles.length) {
+    return null;
+  }
 
   return (
-    <aside className="space-y-6">
-      {/* Trending Articles */}
-      <div className="bg-[#111827] border border-[#1E2A3A] rounded-xl p-5">
-        <h2 className="text-[#F9FAFB] font-semibold font-heading text-base mb-4 flex items-center gap-2">
-          <span className="text-[#EF4444]">🔥</span> Trending
-        </h2>
-        <div className="space-y-4">
-          {TRENDING_ARTICLES.map((article, i) => (
-            <Link key={article.id} href={`/news/${article.slug}`} className="flex gap-3 group">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-[#9CA3AF] group-hover:bg-[#00D4FF]/20 group-hover:text-[#00D4FF] transition-all duration-200">
-                {i + 1}
+    <section className="overflow-hidden rounded-[22px] border border-white/8 bg-[#090909] shadow-[0_20px_60px_rgba(0,0,0,0.34)]">
+      <div className="border-b border-white/8 px-5 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="h-2 w-2 rounded-full bg-[#D6AE69]" />
+            <span
+              className="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[#D6AE69]"
+              style={{ fontFamily: theme.mono }}
+            >
+              Trending Desk
+            </span>
+          </div>
+          <span
+            className="text-[0.64rem] uppercase tracking-[0.22em] text-white/35"
+            style={{ fontFamily: theme.mono }}
+          >
+            Live
+          </span>
+        </div>
+      </div>
+
+      <div className="px-5 py-2">
+        <div className="divide-y divide-white/8">
+          {visibleArticles.map((article, index) => (
+            <Link
+              key={article.id ?? article.slug}
+              href={`/news/${article.slug}`}
+              className="group grid grid-cols-[40px_1fr_auto] items-start gap-4 py-[15px]"
+            >
+              <span
+                className="pt-0.5 text-[1.05rem] font-bold leading-none text-white/18"
+                style={{ fontFamily: theme.mono }}
+              >
+                {String(index + 1).padStart(2, "0")}
               </span>
+
               <div className="min-w-0">
-                <p className="text-sm font-medium text-[#F9FAFB] group-hover:text-[#00D4FF] transition-colors duration-200 line-clamp-2 leading-5">
+                <p
+                  className={`transition-colors duration-200 group-hover:text-white ${
+                    index === 0
+                      ? "text-[1rem] font-semibold leading-6 tracking-[-0.02em] text-[#F2EEE8]"
+                      : "text-[0.96rem] leading-6 text-[#C9C1B6]"
+                  }`}
+                >
                   {article.title}
                 </p>
-                <p className="text-xs text-[#9CA3AF] mt-1">{formatRelativeDate(article.publishedAt)}</p>
               </div>
+
+              <span className="pt-1 text-white/18 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[#D6AE69]">
+                <ArrowIcon className="h-4 w-4" />
+              </span>
             </Link>
           ))}
         </div>
-      </div>
 
-      {/* Fear & Greed Index */}
-      <div className="bg-[#111827] border border-[#1E2A3A] rounded-xl p-5">
-        <h2 className="text-[#F9FAFB] font-semibold font-heading text-base mb-4">Fear & Greed Index</h2>
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-[#10B981] mb-3">
-            <div>
-              <p className="text-3xl font-bold text-[#10B981]">72</p>
-              <p className="text-xs text-[#9CA3AF]">Greed</p>
-            </div>
-          </div>
-          <p className="text-xs text-[#9CA3AF]">Updated daily from alternative.me</p>
+        <div className="border-t border-white/8 pt-4 pb-2">
+          <Link
+            href="/news"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#D6AE69] transition-colors duration-200 hover:text-[#F3C981]"
+          >
+            Browse latest coverage
+            <ArrowIcon className="h-4 w-4" />
+          </Link>
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* Top Gainers */}
-      <div className="bg-[#111827] border border-[#1E2A3A] rounded-xl p-5">
-        <h2 className="text-[#F9FAFB] font-semibold font-heading text-base mb-4 flex items-center gap-2">
-          <span className="text-[#10B981]">▲</span> Top Gainers
-        </h2>
-        <div className="space-y-3">
-          {gainers.map((coin) => (
-            <Link key={coin.id} href={`/coins/${coin.id}`} className="flex items-center justify-between group">
-              <div className="flex items-center gap-2">
-                <Image src={coin.logo} alt={coin.name} width={24} height={24} className="rounded-full" />
-                <span className="text-sm font-medium text-[#F9FAFB] group-hover:text-[#00D4FF] transition-colors duration-200">{coin.symbol}</span>
-              </div>
-              <span className="text-sm font-semibold text-[#10B981]">+{coin.change24h.toFixed(2)}%</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+interface SidebarProps {
+  trendingArticles: Article[];
+}
 
-      {/* Top Losers */}
-      <div className="bg-[#111827] border border-[#1E2A3A] rounded-xl p-5">
-        <h2 className="text-[#F9FAFB] font-semibold font-heading text-base mb-4 flex items-center gap-2">
-          <span className="text-[#EF4444]">▼</span> Top Losers
-        </h2>
-        <div className="space-y-3">
-          {losers.map((coin) => (
-            <Link key={coin.id} href={`/coins/${coin.id}`} className="flex items-center justify-between group">
-              <div className="flex items-center gap-2">
-                <Image src={coin.logo} alt={coin.name} width={24} height={24} className="rounded-full" />
-                <span className="text-sm font-medium text-[#F9FAFB] group-hover:text-[#00D4FF] transition-colors duration-200">{coin.symbol}</span>
-              </div>
-              <span className="text-sm font-semibold text-[#EF4444]">{coin.change24h.toFixed(2)}%</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Bitcoin Dominance */}
-      <div className="bg-[#111827] border border-[#1E2A3A] rounded-xl p-5">
-        <h2 className="text-[#F9FAFB] font-semibold font-heading text-base mb-3">BTC Dominance</h2>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-2xl font-bold text-[#F7931A]">54.2%</span>
-          <span className="text-sm text-[#10B981]">+0.3%</span>
-        </div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-          <div className="h-full rounded-full bg-[#F7931A]" style={{ width: "54.2%" }} />
-        </div>
-        <p className="text-xs text-[#9CA3AF] mt-2">of total crypto market cap</p>
-      </div>
+export function Sidebar({ trendingArticles }: SidebarProps) {
+  return (
+    <aside className="w-full">
+      <TrendingSection articles={trendingArticles} />
     </aside>
   );
 }

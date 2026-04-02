@@ -3,8 +3,6 @@ import { sanityClient } from "./client";
 
 const builder = imageUrlBuilder(sanityClient);
 
-export function urlFor(source: { asset?: { _ref?: string } } | string | null) {
-  if (!source) return "";
-  if (typeof source === "string") return source;
+export function urlFor(source: Parameters<typeof builder.image>[0]) {
   return builder.image(source);
 }

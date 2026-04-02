@@ -1,6 +1,6 @@
-import { articleSchema } from "./article";
-import { authorSchema } from "./author";
-import { categorySchema } from "./category";
-import { tagSchema } from "./tag";
+import article from "./article";
+import author from "./author";
+import category from "./category";
+import tag from "./tag";
 
-export const schemaTypes = [articleSchema, authorSchema, categorySchema, tagSchema];
+export const schemaTypes = [article, author, category, tag];

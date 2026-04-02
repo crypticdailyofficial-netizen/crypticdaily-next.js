@@ -12,6 +12,43 @@ export function calculateReadingTime(text: string): number {
   return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
 }
 
+type PortableTextSpanLike = {
+  _type?: string;
+  text?: string;
+};
+
+type PortableTextTextSpanLike = PortableTextSpanLike & {
+  _type: "span";
+  text: string;
+};
+
+type PortableTextBlockLike = {
+  _type?: string;
+  children?: PortableTextSpanLike[];
+};
+
+export function countPortableTextWords(body: unknown): number {
+  if (!Array.isArray(body)) return 0;
+  return body
+    .filter(
+      (block): block is PortableTextBlockLike =>
+        typeof block === "object" &&
+        block !== null &&
+        (block as PortableTextBlockLike)._type === "block" &&
+        Array.isArray((block as PortableTextBlockLike).children),
+    )
+    .flatMap((block) => block.children)
+    .filter(
+      (span): span is PortableTextTextSpanLike =>
+        typeof span === "object" &&
+        span !== null &&
+        span._type === "span" &&
+        typeof span.text === "string",
+    )
+    .map((span) => span.text.trim().split(/\s+/).filter(Boolean).length)
+    .reduce((sum, count) => sum + count, 0);
+}
+
 export function formatRelativeDate(dateString: string): string {
   const date = new Date(dateString);
   if (isToday(date)) {

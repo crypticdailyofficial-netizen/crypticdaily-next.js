@@ -6,10 +6,19 @@ interface ArticleJsonLdProps {
   slug: string;
   coverImage: string;
   publishedAt: string;
+  updatedAt?: string;
   authorName: string;
 }
 
-export function ArticleJsonLd({ title, excerpt, slug, coverImage, publishedAt, authorName }: ArticleJsonLdProps) {
+export function ArticleJsonLd({
+  title,
+  excerpt,
+  slug,
+  coverImage,
+  publishedAt,
+  updatedAt,
+  authorName,
+}: ArticleJsonLdProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -17,7 +26,7 @@ export function ArticleJsonLd({ title, excerpt, slug, coverImage, publishedAt, a
     "description": excerpt,
     "image": [coverImage],
     "datePublished": publishedAt,
-    "dateModified": publishedAt,
+    "dateModified": updatedAt ?? publishedAt,
     "author": {
       "@type": "Person",
       "name": authorName,
