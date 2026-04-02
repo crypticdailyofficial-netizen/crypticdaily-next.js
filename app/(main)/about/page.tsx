@@ -5,7 +5,16 @@ import {
   DM_Serif_Display,
   JetBrains_Mono,
 } from "next/font/google";
-import { getAllArticleSlugs, getAllCategories } from "@/lib/sanity/queries";
+import {
+  mapSanityArticles,
+  mapSanityAuthors,
+} from "@/lib/sanity/adapters";
+import {
+  getAllArticleSlugs,
+  getAllAuthors,
+  getAllCategories,
+  getLatestArticles,
+} from "@/lib/sanity/queries";
 import { AboutContent } from "./AboutContent";
 
 /* ─── Fonts ──────────────────────────────────────────────────────────────── */
@@ -63,19 +72,25 @@ export default async function AboutPage() {
     jbMono.variable,
   ].join(" ");
 
-  const [articles, categories] = await Promise.all([
+  const [articles, categories, authorsData, latestArticlesData] = await Promise.all([
     getAllArticleSlugs(),
     getAllCategories(),
+    getAllAuthors(),
+    getLatestArticles(4),
   ]);
 
   const articleCount = Array.isArray(articles) ? articles.length : 0;
   const categoryCount = Array.isArray(categories) ? categories.length : 0;
+  const authors = mapSanityAuthors(authorsData);
+  const latestArticles = mapSanityArticles(latestArticlesData);
 
   return (
     <AboutContent
       fontVars={fontVars}
       articleCount={articleCount}
       categoryCount={categoryCount}
+      authors={authors}
+      latestArticles={latestArticles}
     />
   );
 }

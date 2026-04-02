@@ -6,6 +6,7 @@ const authorFields = `
   name,
   "slug": slug.current,
   role,
+  credentials,
   bio,
   twitter,
   avatar
@@ -176,6 +177,12 @@ export const ALL_AUTHOR_SLUGS_QUERY = `
   *[_type == "author"]{ "slug": slug.current }
 `;
 
+export const allAuthorsQuery = `
+  *[_type == "author" && defined(slug.current)] | order(name asc) {
+    ${authorFields}
+  }
+`;
+
 export const AUTHOR_BY_SLUG_QUERY = `
   *[_type == "author" && slug.current == $slug][0]{
     name,
@@ -203,48 +210,107 @@ export const ARTICLES_BY_AUTHOR_QUERY = `
 // ── Fetcher helpers ───────────────────────────────────────────
 
 export async function getFeaturedArticle() {
-  return sanityClient.fetch(featuredArticleQuery);
+  try {
+    return await sanityClient.fetch(featuredArticleQuery);
+  } catch {
+    return null;
+  }
 }
 
 export async function getLatestArticles(limit = 9) {
-  return sanityClient.fetch(latestArticlesQuery, { limit });
+  try {
+    return (await sanityClient.fetch(latestArticlesQuery, { limit })) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getTotalArticleCount() {
-  return sanityClient.fetch<number>(totalArticleCountQuery);
+  try {
+    return (await sanityClient.fetch<number>(totalArticleCountQuery)) ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function getAllArticles(start = 0, end = 12) {
-  return sanityClient.fetch(allArticlesQuery, { start, end });
+  try {
+    return (await sanityClient.fetch(allArticlesQuery, { start, end })) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getArticleBySlug(slug: string) {
-  return sanityClient.fetch(articleBySlugQuery, { slug });
+  try {
+    return await sanityClient.fetch(articleBySlugQuery, { slug });
+  } catch {
+    return null;
+  }
 }
 
 export async function getAllArticleSlugs() {
-  return sanityClient.fetch(allArticleSlugsQuery);
+  try {
+    return (await sanityClient.fetch(allArticleSlugsQuery)) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getArticlesByCategory(category: string) {
-  return sanityClient.fetch(articlesByCategoryQuery, { category });
+  try {
+    return (
+      (await sanityClient.fetch(articlesByCategoryQuery, { category })) ?? []
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function getRelatedArticles(
   category: string,
   currentSlug: string,
 ) {
-  return sanityClient.fetch(relatedArticlesQuery, { category, currentSlug });
+  try {
+    return (
+      (await sanityClient.fetch(relatedArticlesQuery, {
+        category,
+        currentSlug,
+      })) ?? []
+    );
+  } catch {
+    return [];
+  }
 }
 
 export async function getAllCategories() {
-  return sanityClient.fetch(allCategoriesQuery);
+  try {
+    return (await sanityClient.fetch(allCategoriesQuery)) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function searchArticles(search: string) {
-  return sanityClient.fetch(searchArticlesQuery, { search });
+  try {
+    return (await sanityClient.fetch(searchArticlesQuery, { search })) ?? [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getRssFeedArticles() {
-  return sanityClient.fetch(rssFeedQuery);
+  try {
+    return (await sanityClient.fetch(rssFeedQuery)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getAllAuthors() {
+  try {
+    return (await sanityClient.fetch(allAuthorsQuery)) ?? [];
+  } catch {
+    return [];
+  }
 }

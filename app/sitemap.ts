@@ -86,27 +86,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articles: ArticleSlugRecord[] = [];
   try {
-    articles = await sitemapClient.fetch<ArticleSlugRecord[]>(
-      ALL_ARTICLE_SLUGS_QUERY,
-    );
+    articles =
+      (await sitemapClient.fetch<ArticleSlugRecord[]>(ALL_ARTICLE_SLUGS_QUERY)) ??
+      [];
   } catch {
     articles = [];
   }
 
   let categories: CategorySlugRecord[] = [];
   try {
-    categories = await sitemapClient.fetch<CategorySlugRecord[]>(
-      ALL_CATEGORY_SLUGS_QUERY,
-    );
+    categories =
+      (await sitemapClient.fetch<CategorySlugRecord[]>(
+        ALL_CATEGORY_SLUGS_QUERY,
+      )) ?? [];
   } catch {
     categories = [];
   }
 
   let authors: AuthorSlugRecord[] = [];
   try {
-    authors = await sitemapClient.fetch<AuthorSlugRecord[]>(
-      ALL_AUTHOR_SLUGS_QUERY,
-    );
+    authors =
+      (await sitemapClient.fetch<AuthorSlugRecord[]>(ALL_AUTHOR_SLUGS_QUERY)) ??
+      [];
   } catch {
     authors = [];
   }
@@ -121,10 +122,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryCounts = await Promise.all(
     categories.map(async (category) => {
       try {
-        const articleCount = await sitemapClient.fetch<number>(
-          CATEGORY_ARTICLE_COUNT_QUERY,
-          { slug: category.slug },
-        );
+        const articleCount =
+          (await sitemapClient.fetch<number>(CATEGORY_ARTICLE_COUNT_QUERY, {
+            slug: category.slug,
+          })) ?? 0;
 
         return { ...category, articleCount };
       } catch {

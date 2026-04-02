@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { formatRelativeDate } from "@/lib/utils";
+import type { AuthorSummary } from "@/lib/sanity/adapters";
+import type { Article } from "@/types/article";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 interface Props {
   fontVars: string;
   articleCount: number;
   categoryCount: number;
+  authors: AuthorSummary[];
+  latestArticles: Article[];
 }
 
 interface AboutStat {
@@ -232,7 +237,25 @@ function Terminal() {
 }
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
-export function AboutContent({ fontVars, articleCount, categoryCount }: Props) {
+function getTwitterHref(handleOrUrl?: string) {
+  if (!handleOrUrl) {
+    return null;
+  }
+
+  if (handleOrUrl.startsWith("http://") || handleOrUrl.startsWith("https://")) {
+    return handleOrUrl;
+  }
+
+  return `https://x.com/${handleOrUrl.replace(/^@/, "")}`;
+}
+
+export function AboutContent({
+  fontVars,
+  articleCount,
+  categoryCount,
+  authors,
+  latestArticles,
+}: Props) {
   const stats = [
     {
       index: "01",
@@ -468,21 +491,146 @@ export function AboutContent({ fontVars, articleCount, categoryCount }: Props) {
                 Meet the Team.
               </h2>
               <p className="text-[#6B7280] text-[0.9rem] max-w-[480px]">
-                A lean crew of crypto veterans, former finance journalists, and
-                data scientists. Obsessed with getting the story right the first
-                time.
+                Profiles below are pulled directly from Sanity so the public
+                team page stays in sync with your newsroom records.
               </p>
             </div>
 
-            {/* Grid: 1px gap, bg = border color creates "gap as border" effect */}
-            <div className="border border-[#1C2535] bg-[#06080F] p-7 md:p-10">
-              <p className="text-[#6B7280] text-[0.9rem] leading-[1.75] max-w-3xl">
-                Cryptic Daily is built by a small independent team of crypto
-                enthusiasts, journalists, and developers. We do not list
-                individual team members publicly at this stage. If you want to
-                get in touch, use the contact page.
+            {authors.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {authors.map((author) => {
+                  const twitterHref = getTwitterHref(author.twitter);
+
+                  return (
+                    <article
+                      key={author.slug}
+                      className="border border-[#1C2535] bg-[#06080F] p-6 transition-colors duration-200 hover:border-[#00D4FF]/35"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#1C2535] bg-[#0D1118] text-lg font-bold text-[#00D4FF]">
+                          {author.avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={author.avatar}
+                              alt={author.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            author.name
+                              .split(/\s+/)
+                              .filter(Boolean)
+                              .slice(0, 2)
+                              .map((part) => part[0]?.toUpperCase() ?? "")
+                              .join("")
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-xl font-semibold text-[#E8E4D9]">
+                                {author.name}
+                              </h3>
+                              {author.role ? (
+                                <p className="mt-1 text-[0.74rem] uppercase tracking-[0.16em] text-[#00D4FF] [font-family:var(--font-jb-mono)]">
+                                  {author.role}
+                                </p>
+                              ) : null}
+                            </div>
+
+                            <Link
+                              href={`/author/${author.slug}`}
+                              className="text-[0.72rem] uppercase tracking-[0.16em] text-[#FFE600] transition-colors duration-200 hover:text-[#00D4FF]"
+                            >
+                              View page
+                            </Link>
+                          </div>
+
+                          {author.credentials ? (
+                            <p className="mt-4 text-sm leading-6 text-[#AEB7C4]">
+                              {author.credentials}
+                            </p>
+                          ) : null}
+
+                          {author.bio ? (
+                            <p className="mt-3 text-sm leading-7 text-[#6B7280]">
+                              {author.bio}
+                            </p>
+                          ) : null}
+
+                          {twitterHref ? (
+                            <Link
+                              href={twitterHref}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-5 inline-flex text-[0.72rem] uppercase tracking-[0.16em] text-[#00D4FF] transition-colors duration-200 hover:text-[#FFE600]"
+                            >
+                              Follow on X
+                            </Link>
+                          ) : null}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="border border-[#1C2535] bg-[#06080F] p-7 md:p-10">
+                <p className="text-[#6B7280] text-[0.9rem] leading-[1.75] max-w-3xl">
+                  No public author profiles are available in Sanity yet. Add
+                  author documents in the CMS to populate this section.
+                </p>
+              </div>
+            )}
+          </div>
+        </RevealSection>
+
+        <RevealSection className="border-b border-[#1C2535] bg-[#0D1118]">
+          <div className="px-6 md:px-12 py-20">
+            <div className="mb-16">
+              <SectionTag label="Latest" />
+              <h2 className="mb-4 leading-none tracking-tight text-[#E8E4D9] [font-family:var(--font-bebas)] [font-size:clamp(42px,6vw,80px)]">
+                Fresh from the Desk.
+              </h2>
+              <p className="text-[#6B7280] text-[0.9rem] max-w-[560px]">
+                This rail is fed from the latest Sanity articles, not a static
+                placeholder.
               </p>
             </div>
+
+            {latestArticles.length > 0 ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                {latestArticles.map((article, index) => (
+                  <Link
+                    key={article.slug}
+                    href={`/news/${article.slug}`}
+                    className="group border border-[#1C2535] bg-[#06080F] p-6 transition-all duration-200 hover:border-[#00D4FF]/35 hover:bg-[#08101A]"
+                  >
+                    <div className="flex items-center justify-between gap-4 text-[0.68rem] uppercase tracking-[0.18em] text-[#6B7280] [font-family:var(--font-jb-mono)]">
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <span>{article.category.title}</span>
+                    </div>
+                    <h3 className="mt-4 text-2xl font-semibold leading-tight text-[#E8E4D9] transition-colors duration-200 group-hover:text-[#00D4FF]">
+                      {article.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-[#6B7280]">
+                      {article.excerpt}
+                    </p>
+                    <div className="mt-5 flex items-center justify-between gap-4 text-[0.72rem] uppercase tracking-[0.16em] text-[#9AA6B2]">
+                      <span>{article.author.name}</span>
+                      <span>{formatRelativeDate(article.publishedAt)}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="border border-[#1C2535] bg-[#06080F] p-7 md:p-10">
+                <p className="text-[#6B7280] text-[0.9rem] leading-[1.75] max-w-3xl">
+                  No latest articles are available from Sanity yet. Publish
+                  content in the CMS to populate this section.
+                </p>
+              </div>
+            )}
           </div>
         </RevealSection>
 

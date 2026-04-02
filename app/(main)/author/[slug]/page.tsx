@@ -119,7 +119,9 @@ function mapAuthorArticles(articles: SanityAuthorArticle[] = []) {
 }
 
 export async function generateStaticParams() {
-  const authors = await sanityClient.fetch(ALL_AUTHOR_SLUGS_QUERY);
+  const authors =
+    (await sanityClient.fetch<Array<{ slug: string }>>(ALL_AUTHOR_SLUGS_QUERY)) ??
+    [];
   return authors.map((a: { slug: string }) => ({ slug: a.slug }));
 }
 
@@ -127,7 +129,10 @@ export async function generateMetadata(
   { params }: { params: Promise<AuthorPageParams> },
 ): Promise<Metadata> {
   const { slug } = await params;
-  const author = await sanityClient.fetch(AUTHOR_BY_SLUG_QUERY, { slug });
+  const author = await sanityClient.fetch<SanityAuthor | null>(
+    AUTHOR_BY_SLUG_QUERY,
+    { slug },
+  );
   if (!author) return {};
   const description =
     author.bio?.slice(0, 155) ?? `Articles by ${author.name} on Cryptic Daily.`;
@@ -157,7 +162,7 @@ export default async function AuthorPage({
     sanityClient.fetch<SanityAuthor | null>(AUTHOR_BY_SLUG_QUERY, {
       slug,
     }),
-    sanityClient.fetch<SanityAuthorArticle[]>(ARTICLES_BY_AUTHOR_QUERY, {
+    sanityClient.fetch<SanityAuthorArticle[] | null>(ARTICLES_BY_AUTHOR_QUERY, {
       slug,
     }),
   ]);
@@ -166,7 +171,7 @@ export default async function AuthorPage({
     notFound();
   }
 
-  const articles = mapAuthorArticles(articlesData);
+  const articles = mapAuthorArticles(articlesData ?? []);
   const articleCount = articles.length;
   const avatarUrl = author.avatar
     ? urlFor(author.avatar).width(240).height(240).fit("crop").url()

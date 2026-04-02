@@ -13,6 +13,7 @@ interface SanityAuthor {
   name?: string | null;
   slug?: string | null;
   role?: string | null;
+  credentials?: string | null;
   bio?: string | null;
   twitter?: string | null;
   avatar?: SanityImageSource | null;
@@ -70,6 +71,16 @@ export interface CategorySummary {
   color: string;
   description: string;
   articleCount: number;
+}
+
+export interface AuthorSummary {
+  name: string;
+  slug: string;
+  role: string;
+  credentials: string;
+  bio: string;
+  twitter?: string;
+  avatar?: string | null;
 }
 
 function resolveImageUrl(
@@ -132,6 +143,33 @@ function mapSanityTag(tag: SanityTag) {
     title: tag.title,
     slug: tag.slug,
   };
+}
+
+export function mapSanityAuthor(author: SanityAuthor | null | undefined) {
+  if (!author?.name || !author.slug) {
+    return null;
+  }
+
+  return {
+    name: author.name,
+    slug: author.slug,
+    role: author.role ?? "",
+    credentials: author.credentials ?? "",
+    bio: author.bio ?? "",
+    twitter: author.twitter ?? undefined,
+    avatar: resolveImageUrl(author.avatar, {
+      width: 240,
+      height: 240,
+    }),
+  };
+}
+
+export function mapSanityAuthors(authors: SanityAuthor[] | null | undefined) {
+  return (authors ?? []).flatMap((author) => {
+    const mappedAuthor = mapSanityAuthor(author);
+
+    return mappedAuthor ? [mappedAuthor] : [];
+  });
 }
 
 export function mapSanityCategory(

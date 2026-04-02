@@ -3,12 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GlassPremiumArticleGrid } from "@/components/article/GlassPremiumArticleGrid";
-import { sanityClient } from "@/lib/sanity/client";
-import {
-  mapSanityArticles,
-  type SanityArticleRecord,
-} from "@/lib/sanity/adapters";
-import { searchArticlesQuery } from "@/lib/sanity/queries";
 import type { Article } from "@/types/article";
 
 const MONO_FONT =
@@ -80,17 +74,21 @@ function SearchResults() {
       setSearched(true);
 
       try {
-        const search = `${query
-          .split(/\s+/)
-          .filter(Boolean)
-          .join("* ")}*`;
-        const data = await sanityClient.fetch<SanityArticleRecord[]>(
-          searchArticlesQuery,
-          { search },
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(query)}`,
+          {
+            cache: "no-store",
+          },
         );
 
+        if (!response.ok) {
+          throw new Error("Search request failed");
+        }
+
+        const data = (await response.json()) as { results?: Article[] };
+
         if (!cancelled) {
-          setResults(mapSanityArticles(data));
+          setResults(data.results ?? []);
         }
       } catch {
         if (!cancelled) {
