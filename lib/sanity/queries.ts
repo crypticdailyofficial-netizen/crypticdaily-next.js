@@ -18,6 +18,12 @@ const categoryFields = `
   color
 `;
 
+const tagFields = `
+  title,
+  "slug": slug.current,
+  description
+`;
+
 export const articleCardFields = `
   title,
   "slug": slug.current,
@@ -177,9 +183,26 @@ export const ALL_AUTHOR_SLUGS_QUERY = `
   *[_type == "author"]{ "slug": slug.current }
 `;
 
+export const ALL_TAG_SLUGS_QUERY = `
+  *[_type == "tag" && defined(slug.current)] {
+    "slug": slug.current
+  }
+`;
+
 export const allAuthorsQuery = `
   *[_type == "author" && defined(slug.current)] | order(name asc) {
     ${authorFields}
+  }
+`;
+
+export const allTagsQuery = `
+  *[_type == "tag" && defined(slug.current)] | order(title asc) {
+    ${tagFields},
+    "articleCount": count(*[
+      _type == "article" &&
+      defined(publishedAt) &&
+      references(^._id)
+    ])
   }
 `;
 
@@ -204,6 +227,35 @@ export const ARTICLES_BY_AUTHOR_QUERY = `
     publishedAt,
     "category": category->{ title, "slug": slug.current, color },
     "author": author->{ name, "slug": slug.current, avatar }
+  }
+`;
+
+export const TAG_BY_SLUG_QUERY = `
+  *[_type == "tag" && slug.current == $slug][0] {
+    ${tagFields},
+    "articleCount": count(*[
+      _type == "article" &&
+      defined(publishedAt) &&
+      references(^._id)
+    ])
+  }
+`;
+
+export const TAG_ARTICLE_COUNT_QUERY = `
+  count(*[
+    _type == "article" &&
+    defined(publishedAt) &&
+    $slug in tags[]->slug.current
+  ])
+`;
+
+export const articlesByTagQuery = `
+  *[
+    _type == "article" &&
+    defined(publishedAt) &&
+    $slug in tags[]->slug.current
+  ] | order(publishedAt desc) {
+    ${articleCardFields}
   }
 `;
 
@@ -310,6 +362,30 @@ export async function getRssFeedArticles() {
 export async function getAllAuthors() {
   try {
     return (await sanityClient.fetch(allAuthorsQuery)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getAllTags() {
+  try {
+    return (await sanityClient.fetch(allTagsQuery)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getTagBySlug(slug: string) {
+  try {
+    return await sanityClient.fetch(TAG_BY_SLUG_QUERY, { slug });
+  } catch {
+    return null;
+  }
+}
+
+export async function getArticlesByTag(slug: string) {
+  try {
+    return (await sanityClient.fetch(articlesByTagQuery, { slug })) ?? [];
   } catch {
     return [];
   }

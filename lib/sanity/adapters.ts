@@ -30,6 +30,8 @@ interface SanityCategory {
 interface SanityTag {
   title?: string | null;
   slug?: string | null;
+  description?: string | null;
+  articleCount?: number | null;
 }
 
 interface SanitySource {
@@ -81,6 +83,13 @@ export interface AuthorSummary {
   bio: string;
   twitter?: string;
   avatar?: string | null;
+}
+
+export interface TagSummary {
+  title: string;
+  slug: string;
+  description: string;
+  articleCount: number;
 }
 
 function resolveImageUrl(
@@ -143,6 +152,28 @@ function mapSanityTag(tag: SanityTag) {
     title: tag.title,
     slug: tag.slug,
   };
+}
+
+export function mapSanityTagSummary(tag: SanityTag | null | undefined) {
+  if (!tag?.title || !tag.slug) {
+    return null;
+  }
+
+  return {
+    title: tag.title,
+    slug: tag.slug,
+    description: tag.description ?? "",
+    articleCount:
+      typeof tag.articleCount === "number" ? tag.articleCount : 0,
+  };
+}
+
+export function mapSanityTagSummaries(tags: SanityTag[] | null | undefined) {
+  return (tags ?? []).flatMap((tag) => {
+    const mappedTag = mapSanityTagSummary(tag);
+
+    return mappedTag ? [mappedTag] : [];
+  });
 }
 
 export function mapSanityAuthor(author: SanityAuthor | null | undefined) {

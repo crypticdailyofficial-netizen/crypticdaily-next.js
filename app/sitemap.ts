@@ -6,7 +6,9 @@ import {
   ALL_ARTICLE_SLUGS_QUERY,
   ALL_AUTHOR_SLUGS_QUERY,
   ALL_CATEGORY_SLUGS_QUERY,
+  ALL_TAG_SLUGS_QUERY,
   CATEGORY_ARTICLE_COUNT_QUERY,
+  TAG_ARTICLE_COUNT_QUERY,
 } from "@/lib/sanity/queries";
 
 type ArticleSlugRecord = {
@@ -19,6 +21,10 @@ type CategorySlugRecord = {
 };
 
 type AuthorSlugRecord = {
+  slug: string;
+};
+
+type TagSlugRecord = {
   slug: string;
 };
 
@@ -82,6 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.3,
     },
+    {
+      url: `${SITE_URL}/tags`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
   ];
 
   let articles: ArticleSlugRecord[] = [];
@@ -110,6 +122,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       [];
   } catch {
     authors = [];
+  }
+
+  let tags: TagSlugRecord[] = [];
+  try {
+    tags =
+      (await sitemapClient.fetch<TagSlugRecord[]>(ALL_TAG_SLUGS_QUERY)) ?? [];
+  } catch {
+    tags = [];
   }
 
   const articleRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
@@ -150,5 +170,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  return [...staticRoutes, ...articleRoutes, ...categoryRoutes, ...authorRoutes];
+  const tagCounts = await Promise.all(
+    tags.map(async (tag) => {
+      try {
+        const articleCount =
+          (await sitemapClient.fetch<number>(TAG_ARTICLE_COUNT_QUERY, {
+            slug: tag.slug,
+          })) ?? 0;
+
+        return { ...tag, articleCount };
+      } catch {
+        return { ...tag, articleCount: 0 };
+      }
+    }),
+  );
+
+  const tagRoutes: MetadataRoute.Sitemap = tagCounts
+    .filter((tag) => tag.articleCount > 0)
+    .map((tag) => ({
+      url: `${SITE_URL}/tags/${tag.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.5,
+    }));
+
+  return [
+    ...staticRoutes,
+    ...articleRoutes,
+    ...categoryRoutes,
+    ...authorRoutes,
+    ...tagRoutes,
+  ];
 }

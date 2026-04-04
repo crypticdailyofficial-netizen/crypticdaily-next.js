@@ -400,7 +400,7 @@ export default async function ArticlePage({
                     {article.tags.map((tag) => (
                       <Link
                         key={tag.slug}
-                        href={`/search?q=${tag.title}`}
+                        href={`/tags/${tag.slug}`}
                         className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/72 transition-all duration-200 hover:border-fuchsia-300/30 hover:bg-fuchsia-400/[0.08] hover:text-fuchsia-50"
                       >
                         <span className="text-fuchsia-300/80 transition-colors duration-200 group-hover:text-fuchsia-200">
