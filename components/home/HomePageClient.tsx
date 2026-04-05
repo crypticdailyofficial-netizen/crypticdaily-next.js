@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { GlassPremiumArticleGrid } from "@/components/article/GlassPremiumArticleGrid";
 import { Hero } from "@/components/home/Hero";
@@ -10,7 +11,8 @@ import { Button } from "@/components/ui/Button";
 import type { CategorySummary } from "@/lib/sanity/adapters";
 import type { Article } from "@/types/article";
 import Community from "../community/Community";
-import AnimatedHero from "./AnimatedHero";
+
+const AnimatedHero = dynamic(() => import("./AnimatedHero"), { ssr: false });
 
 interface HomePageClientProps {
   featuredArticle: Article | null;
@@ -123,7 +125,7 @@ export function HomePageClient({
             </div>
           </div>
         </div>
-        <div className="pb-10">
+        <div className="pb-10 min-h-72.5">
           <AnimatedHero />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
@@ -195,7 +197,7 @@ export function HomePageClient({
                     <div className="mt-5 space-y-4">
                       <div className="flex items-end justify-between gap-4 border-b border-white/6 pb-4">
                         <div>
-                          <p className="text-[0.64rem] uppercase tracking-[0.18em] text-[#7B6A57]">
+                          <p className="text-[0.64rem] uppercase tracking-[0.18em] text-[#9E8E7A]">
                             Current Desk
                           </p>
                           <p className="mt-2 text-lg font-semibold text-[#F6F1E8]">
@@ -209,7 +211,7 @@ export function HomePageClient({
 
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-[0.64rem] uppercase tracking-[0.18em] text-[#7B6A57]">
+                          <p className="text-[0.64rem] uppercase tracking-[0.18em] text-[#9E8E7A]">
                             Coverage Mode
                           </p>
                           <p className="mt-2 text-sm leading-6 text-[#BCA890]">
@@ -222,7 +224,7 @@ export function HomePageClient({
                   </aside>
                 </div>
 
-                <div className="mt-7 rounded-[28px] border border-white/8 bg-[#0F0D0B]/86 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+                <div className="hidden sm:block mt-7 rounded-[28px] border border-white/8 bg-[#0F0D0B]/86 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-[#8A7660]">
                       Switch Desk
@@ -302,7 +304,7 @@ export function HomePageClient({
             >
               Stay ahead of crypto markets
             </h2>
-            <p className="text-sm mb-8" style={{ color: "#5A6475" }}>
+            <p className="text-sm mb-8" style={{ color: "#8B95A1" }}>
               Get daily crypto news and market insights delivered to your inbox.
             </p>
             {subMessage ? (

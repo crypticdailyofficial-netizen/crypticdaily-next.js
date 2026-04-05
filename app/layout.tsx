@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import Script from "next/script";
+
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { PriceTicker } from "@/components/layout/PriceTicker";
+import { PriceTickerClient } from "@/components/layout/PriceTickerClient";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
 
 const inter = Inter({
@@ -80,27 +82,36 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
-      <head>
+      <head suppressHydrationWarning>
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="preconnect" href="https://googleads.g.doubleclick.net" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
+          suppressHydrationWarning={true}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(websiteSchema),
           }}
+          suppressHydrationWarning={true}
         />
       </head>
       <body className="bg-[#0A0F1E] text-[#F9FAFB] font-sans antialiased min-h-screen">
         <div className="pt-1 pb-2">
-          <PriceTicker />
+          <PriceTickerClient />
         </div>
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7147647014895195"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
       </body>
     </html>
   );

@@ -29,6 +29,7 @@ export function Hero({ article }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
             className="object-cover"
             priority
+            fetchPriority="high"
             placeholder={article.coverImageBlurDataURL ? "blur" : "empty"}
             blurDataURL={article.coverImageBlurDataURL ?? undefined}
             style={{ filter: "brightness(0.22) saturate(0.45)" }}
@@ -185,7 +186,7 @@ export function Hero({ article }) {
                 >
                   {article.author.name}
                 </Link>
-                <p className="text-xs" style={{ color: "#4A5568" }}>
+                <p className="text-xs" style={{ color: "#6B7280" }}>
                   {formatRelativeDate(article.publishedAt)} ·{" "}
                   {article.readingTime ?? 5} min read
                 </p>

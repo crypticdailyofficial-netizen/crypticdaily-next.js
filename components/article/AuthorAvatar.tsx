@@ -39,6 +39,7 @@ export function AuthorAvatar({
           src={src}
           alt={name}
           fill
+          sizes="120px"
           className={cn("object-cover", imageClassName)}
         />
       ) : (

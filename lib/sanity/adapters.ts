@@ -85,13 +85,6 @@ export interface AuthorSummary {
   avatar?: string | null;
 }
 
-export interface TagSummary {
-  title: string;
-  slug: string;
-  description: string;
-  articleCount: number;
-}
-
 function resolveImageUrl(
   image: SanityImageSource | null | undefined,
   options?: { width?: number; height?: number },
@@ -152,28 +145,6 @@ function mapSanityTag(tag: SanityTag) {
     title: tag.title,
     slug: tag.slug,
   };
-}
-
-export function mapSanityTagSummary(tag: SanityTag | null | undefined) {
-  if (!tag?.title || !tag.slug) {
-    return null;
-  }
-
-  return {
-    title: tag.title,
-    slug: tag.slug,
-    description: tag.description ?? "",
-    articleCount:
-      typeof tag.articleCount === "number" ? tag.articleCount : 0,
-  };
-}
-
-export function mapSanityTagSummaries(tags: SanityTag[] | null | undefined) {
-  return (tags ?? []).flatMap((tag) => {
-    const mappedTag = mapSanityTagSummary(tag);
-
-    return mappedTag ? [mappedTag] : [];
-  });
 }
 
 export function mapSanityAuthor(author: SanityAuthor | null | undefined) {

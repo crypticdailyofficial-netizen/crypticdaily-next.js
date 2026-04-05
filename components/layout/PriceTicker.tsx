@@ -43,9 +43,7 @@ const COINGECKO_IDS: Record<AssetId, string> = {
   avalanche: "avalanche-2",
 };
 
-const PRICE_URL = `https://api.coingecko.com/api/v3/simple/price?ids=${Object.values(
-  COINGECKO_IDS,
-).join(",")}&vs_currencies=usd&include_24hr_change=true`;
+const PRICE_URL = "/api/prices";
 
 type AssetId = (typeof ASSET_IDS)[number];
 
@@ -118,9 +116,7 @@ export function PriceTicker() {
 
     const fetchTickerData = async () => {
       try {
-        const res = await fetch(PRICE_URL, {
-          next: { revalidate: 30 },
-        });
+        const res = await fetch(PRICE_URL);
         if (!res.ok) {
           return;
         }

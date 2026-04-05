@@ -77,7 +77,7 @@ export function ArticleCard({ article, layout = "vertical" }: ArticleCardProps) 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.08),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(251,191,36,0.08),transparent_28%)]" />
 
       <div className="relative aspect-video overflow-hidden border-b border-white/10 bg-[linear-gradient(135deg,#111827,#0F172A)]">
-        <Link href={`/news/${article.slug}`} className="block h-full" aria-label={article.title}>
+        <Link href={`/news/${article.slug}`} className="relative block h-full" aria-label={article.title}>
           {article.coverImage ? (
             <Image
               src={article.coverImage}

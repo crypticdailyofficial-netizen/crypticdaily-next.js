@@ -45,6 +45,15 @@ const portableTextComponents: PortableTextComponents = {
   marks: {
     link: ({ children, value }) => {
       const href = value?.href || "#";
+      const isRemovedTagLink =
+        href === "/tags" ||
+        href.startsWith("/tags/") ||
+        href === `${SITE_URL}/tags` ||
+        href.startsWith(`${SITE_URL}/tags/`);
+
+      if (isRemovedTagLink) {
+        return <>{children}</>;
+      }
 
       return (
         <a
@@ -185,8 +194,21 @@ export default async function ArticlePage({
       ? `${article.title.slice(0, 40).trimEnd()}…`
       : article.title;
 
+  const coverPreloadUrl = article.coverImage
+    ? `/_next/image?url=${encodeURIComponent(article.coverImage)}&w=1080&q=75`
+    : null;
+
   return (
     <>
+      {coverPreloadUrl && (
+        <link
+          rel="preload"
+          as="image"
+          href={coverPreloadUrl}
+          // @ts-expect-error — fetchpriority valid HTML, missing from React types
+          fetchpriority="high"
+        />
+      )}
       <ArticleJsonLd
         title={article.title}
         excerpt={article.excerpt}
@@ -294,6 +316,7 @@ export default async function ArticlePage({
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 65vw, 800px"
                   className="object-cover"
                   priority
+                  fetchPriority="high"
                   placeholder={article.coverImageBlurDataURL ? "blur" : "empty"}
                   blurDataURL={article.coverImageBlurDataURL ?? undefined}
                 />
@@ -302,16 +325,22 @@ export default async function ArticlePage({
               )}
             </div>
 
-            {/* Ad Unit */}
-            <AdUnit slot="2345678901" />
-
             {/* Body */}
             <ArticleDetail article={article}>
-              {Array.isArray(article.body) ? (
-                <PortableText
-                  value={article.body as TypedObject[]}
-                  components={portableTextComponents}
-                />
+              {Array.isArray(article.body) && article.body.length > 0 ? (
+                <>
+                  <PortableText
+                    value={article.body.slice(0, 1) as TypedObject[]}
+                    components={portableTextComponents}
+                  />
+                  <AdUnit slot="3126908163" format="in-article" />
+                  {article.body.length > 1 && (
+                    <PortableText
+                      value={article.body.slice(1) as TypedObject[]}
+                      components={portableTextComponents}
+                    />
+                  )}
+                </>
               ) : null}
             </ArticleDetail>
 
@@ -371,48 +400,7 @@ export default async function ArticlePage({
             )}
 
             {/* Ad Unit 2 */}
-            {isLongForm && <AdUnit slot="3456789012" />}
-
-            {/* Tags */}
-            {article.tags && article.tags.length > 0 && (
-              <section className="relative mt-10 overflow-hidden rounded-[24px] border border-fuchsia-400/15 bg-[linear-gradient(180deg,rgba(16,10,20,0.98),rgba(7,5,12,0.98))]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(217,70,239,0.12),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(251,191,36,0.08),transparent_28%)]" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(244,114,182,0.45),transparent)]" />
-
-                <div className="relative z-10 p-5 sm:p-6">
-                  <div className="flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-fuchsia-200/55">
-                        Filed Under
-                      </p>
-                      <h3 className="mt-2 text-lg font-semibold tracking-[-0.02em] text-white">
-                        Tags
-                      </h3>
-                    </div>
-
-                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-fuchsia-100/80">
-                      <span className="h-2 w-2 rounded-full bg-fuchsia-300 shadow-[0_0_14px_rgba(244,114,182,0.9)]" />
-                      {article.tags.length} Topics
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {article.tags.map((tag) => (
-                      <Link
-                        key={tag.slug}
-                        href={`/tags/${tag.slug}`}
-                        className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/72 transition-all duration-200 hover:border-fuchsia-300/30 hover:bg-fuchsia-400/[0.08] hover:text-fuchsia-50"
-                      >
-                        <span className="text-fuchsia-300/80 transition-colors duration-200 group-hover:text-fuchsia-200">
-                          #
-                        </span>
-                        <span>{tag.title}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
+            {isLongForm && <AdUnit slot="4721189309" format="display" />}
 
             {/* Author Bio */}
             <section className="relative mt-10 overflow-hidden rounded-[26px] border border-amber-300/15 bg-[linear-gradient(180deg,rgba(20,14,8,0.98),rgba(8,6,4,0.98))]">

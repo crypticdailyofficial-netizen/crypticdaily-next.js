@@ -1,8 +1,4 @@
-"use client";
-
 import Image, { type StaticImageData } from "next/image";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
 
 export interface EditorialHeroBannerProps {
   color: string;
@@ -18,6 +14,13 @@ function formatCount(value: number) {
   return value.toString().padStart(2, "0");
 }
 
+function getRevealStyle(delayMs: number) {
+  return {
+    animationDelay: `${delayMs}ms`,
+    animationFillMode: "both" as const,
+  };
+}
+
 export default function EditorialHeroBanner({
   color,
   eyebrow,
@@ -27,62 +30,16 @@ export default function EditorialHeroBanner({
   bannerImage,
   bannerImageAlt,
 }: EditorialHeroBannerProps) {
-  const containerRef = useRef<HTMLElement>(null);
-  const haloRef = useRef<HTMLDivElement>(null);
-  const ruleRef = useRef<HTMLDivElement>(null);
-
   const eyebrowTokens = eyebrow
     .split("·")
     .map((part) => part.trim())
     .filter(Boolean)
     .slice(0, 3);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const revealNodes =
-        gsap.utils.toArray<HTMLElement>("[data-hero-reveal]");
-
-      const timeline = gsap.timeline({
-        defaults: { duration: 0.72, ease: "power3.out" },
-      });
-
-      timeline
-        .fromTo(
-          containerRef.current,
-          { opacity: 0, y: 42, scale: 0.985 },
-          { opacity: 1, y: 0, scale: 1 },
-        )
-        .fromTo(
-          revealNodes,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, stagger: 0.08, duration: 0.58 },
-          "-=0.5",
-        )
-        .fromTo(
-          ruleRef.current,
-          { scaleX: 0, transformOrigin: "left center" },
-          { scaleX: 1, duration: 0.8, ease: "power2.out" },
-          "-=0.48",
-        );
-
-      gsap.to(haloRef.current, {
-        x: 24,
-        y: -16,
-        scale: 1.08,
-        duration: 4.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
     <section
-      ref={containerRef}
-      className="group relative mb-10 overflow-hidden rounded-[34px] border border-cyan-400/15 bg-[#040812] text-white shadow-[0_32px_120px_rgba(0,0,0,0.52)]"
+      className="group relative mb-10 overflow-hidden rounded-[34px] border border-cyan-400/15 bg-[#040812] text-white shadow-[0_32px_120px_rgba(0,0,0,0.52)] motion-safe:animate-fade-up"
+      style={getRevealStyle(0)}
     >
       <div
         className="absolute inset-0"
@@ -109,10 +66,10 @@ export default function EditorialHeroBanner({
       />
 
       <div
-        ref={haloRef}
-        className="pointer-events-none absolute -right-16 top-8 h-72 w-72 rounded-full blur-3xl"
+        className="pointer-events-none absolute -right-16 top-8 h-72 w-72 rounded-full blur-3xl motion-safe:animate-float-y"
         style={{
           background: `radial-gradient(circle, ${color}30 0%, transparent 72%)`,
+          animationDuration: "4.8s",
         }}
       />
 
@@ -124,8 +81,8 @@ export default function EditorialHeroBanner({
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div
-              data-hero-reveal
-              className="inline-flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-cyan-100/70"
+              className="inline-flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-cyan-100/70 motion-safe:animate-fade-up"
+              style={getRevealStyle(90)}
             >
               <span
                 className="inline-block h-2 w-2 rounded-full"
@@ -135,8 +92,8 @@ export default function EditorialHeroBanner({
             </div>
 
             <div
-              data-hero-reveal
-              className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.04] px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-white/72 [clip-path:polygon(0_0,calc(100%-12px)_0,100%_50%,calc(100%-12px)_100%,0_100%)]"
+              className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.04] px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-white/72 [clip-path:polygon(0_0,calc(100%-12px)_0,100%_50%,calc(100%-12px)_100%,0_100%)] motion-safe:animate-fade-up"
+              style={getRevealStyle(150)}
             >
               <span className="text-white/38">Sector</span>
               <span style={{ color }}>{eyebrow}</span>
@@ -152,13 +109,13 @@ export default function EditorialHeroBanner({
             </p>
 
             <h1
-              data-hero-reveal
-              className="relative max-w-4xl text-balance text-[clamp(42px,7vw,84px)] font-black uppercase leading-[0.88] tracking-[-0.065em] text-transparent"
+              className="relative max-w-4xl text-balance text-[clamp(42px,7vw,84px)] font-black uppercase leading-[0.88] tracking-[-0.065em] text-transparent motion-safe:animate-fade-up"
               style={{
                 backgroundImage: `linear-gradient(180deg, #F8FCFF 0%, #D6E8F6 42%, ${color} 100%)`,
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 textShadow: "0 0 28px rgba(255,255,255,0.08)",
+                ...getRevealStyle(220),
               }}
             >
               {title}
@@ -167,21 +124,21 @@ export default function EditorialHeroBanner({
 
           <div className="mt-6 max-w-3xl">
             <div
-              ref={ruleRef}
-              className="h-[2px] bg-[linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.24)_46%,transparent_100%)]"
+              className="h-[2px] bg-[linear-gradient(90deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.24)_46%,transparent_100%)] motion-safe:animate-fade-in"
+              style={getRevealStyle(300)}
             />
           </div>
 
           <p
-            data-hero-reveal
-            className="mt-6 max-w-3xl text-balance text-[1rem] leading-8 text-[#9FB4C8] md:text-[1.05rem]"
+            className="mt-6 max-w-3xl text-balance text-[1rem] leading-8 text-[#9FB4C8] md:text-[1.05rem] motion-safe:animate-fade-up"
+            style={getRevealStyle(360)}
           >
             {description}
           </p>
 
           <div
-            data-hero-reveal
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-8 flex flex-wrap items-center gap-3 motion-safe:animate-fade-up"
+            style={getRevealStyle(420)}
           >
             {eyebrowTokens.map((token, index) => (
               <span
@@ -217,8 +174,8 @@ export default function EditorialHeroBanner({
 
           <div className="relative p-5 xl:p-6">
             <article
-              data-hero-reveal
-              className="border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.02)_100%)] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_48px_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,calc(100%-18px)_0,100%_18px,100%_100%,18px_100%,0_calc(100%-18px))]"
+              className="border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.02)_100%)] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_48px_rgba(0,0,0,0.28)] [clip-path:polygon(0_0,calc(100%-18px)_0,100%_18px,100%_100%,18px_100%,0_calc(100%-18px))] motion-safe:animate-fade-up"
+              style={getRevealStyle(260)}
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[0.64rem] uppercase tracking-[0.32em] text-white/45">
@@ -263,8 +220,8 @@ export default function EditorialHeroBanner({
 
             {bannerImage ? (
               <div
-                data-hero-reveal
-                className="relative mt-4 overflow-hidden border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.02)_100%)] p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_48px_rgba(0,0,0,0.22)] [clip-path:polygon(0_0,calc(100%-18px)_0,100%_18px,100%_100%,18px_100%,0_calc(100%-18px))]"
+                className="relative mt-4 overflow-hidden border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.02)_100%)] p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_24px_48px_rgba(0,0,0,0.22)] [clip-path:polygon(0_0,calc(100%-18px)_0,100%_18px,100%_100%,18px_100%,0_calc(100%-18px))] motion-safe:animate-fade-up"
+                style={getRevealStyle(340)}
               >
                 <div className="relative aspect-[4/5] overflow-hidden [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,14px_100%,0_calc(100%-14px))]">
                   <Image

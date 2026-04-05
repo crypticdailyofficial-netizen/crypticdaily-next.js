@@ -31,6 +31,15 @@ export default async function Homepage() {
   const featuredArticle = mapSanityArticle(featuredArticleData);
   const latestArticles = dedupeArticles(mapSanityArticles(latestArticlesData));
   const categories = mapSanityCategories(categoriesData);
+
+  // Preload the hero image via the /_next/image proxy so the browser can
+  // start the request before the client JS renders the Hero component.
+  const heroImageSrc =
+    featuredArticle?.coverImage ?? latestArticles[0]?.coverImage ?? null;
+  const heroPreloadUrl = heroImageSrc
+    ? `/_next/image?url=${encodeURIComponent(heroImageSrc)}&w=1080&q=75`
+    : null;
+
   const webPageJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -46,6 +55,16 @@ export default async function Homepage() {
 
   return (
     <>
+      {heroPreloadUrl && (
+        // eslint-disable-next-line @next/next/no-head-element
+        <link
+          rel="preload"
+          as="image"
+          href={heroPreloadUrl}
+          // @ts-expect-error — fetchpriority is valid HTML but missing from React types
+          fetchpriority="high"
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
