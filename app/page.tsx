@@ -13,7 +13,6 @@ import {
 } from "@/lib/sanity/queries";
 
 export const revalidate = 300;
-const HOME_HERO_IMAGE_SRC = "/images/main-article.webp";
 
 export default async function Homepage() {
   const [
@@ -33,14 +32,6 @@ export default async function Homepage() {
   const latestArticles = dedupeArticles(mapSanityArticles(latestArticlesData));
   const categories = mapSanityCategories(categoriesData);
 
-  // Preload the hero image via the /_next/image proxy so the browser can
-  // start the request before the client JS renders the Hero component.
-  const heroImageSrc =
-    featuredArticle || latestArticles[0] ? HOME_HERO_IMAGE_SRC : null;
-  const heroPreloadUrl = heroImageSrc
-    ? `/_next/image?url=${encodeURIComponent(heroImageSrc)}&w=1080&q=75`
-    : null;
-
   const webPageJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -56,16 +47,6 @@ export default async function Homepage() {
 
   return (
     <>
-      {heroPreloadUrl && (
-        // eslint-disable-next-line @next/next/no-head-element
-        <link
-          rel="preload"
-          as="image"
-          href={heroPreloadUrl}
-          // @ts-expect-error — fetchpriority is valid HTML but missing from React types
-          fetchpriority="high"
-        />
-      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
