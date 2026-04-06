@@ -4,15 +4,56 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { GlassPremiumArticleGrid } from "@/components/article/GlassPremiumArticleGrid";
+import AnimatedHero from "@/components/home/AnimatedHero";
 import { Hero } from "@/components/home/Hero";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 import type { CategorySummary } from "@/lib/sanity/adapters";
 import type { Article } from "@/types/article";
-import Community from "../community/Community";
-
-const AnimatedHero = dynamic(() => import("./AnimatedHero"), { ssr: false });
+const Community = dynamic(() => import("../community/Community"), {
+  loading: () => (
+    <div className="h-[240px] rounded-2xl border border-white/10 bg-white/[0.03]" />
+  ),
+});
+const GlassPremiumArticleGrid = dynamic(
+  () =>
+    import("@/components/article/GlassPremiumArticleGrid").then(
+      (mod) => mod.GlassPremiumArticleGrid,
+    ),
+  {
+    loading: () => (
+      <div className="border-white/10 p-4 md:p-6">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={`home-grid-skeleton-${index}`}
+              className="overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.04] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+            >
+              <Skeleton className="h-56 w-full rounded-[26px]" />
+              <div className="space-y-4 p-4 pt-5">
+                <div className="flex items-center justify-between gap-3">
+                  <Skeleton className="h-7 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-4 w-11/12" />
+                <Skeleton className="h-4 w-4/5" />
+                <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 
 interface HomePageClientProps {
   featuredArticle: Article | null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 const FINAL_TEXT = "CRYPTIC DAILY";
 const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
@@ -36,11 +36,8 @@ function MiniCard({ className = "", title, value }: { className?: string; title:
 
 export default function AnimatedHero() {
   const titleRef = useRef<HTMLHeadingElement | null>(null);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
-
     const el = titleRef.current;
     if (!el) return;
 
@@ -101,10 +98,7 @@ export default function AnimatedHero() {
 
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-      <div
-        className="relative z-10 flex h-full items-center justify-center px-4 transition-opacity duration-700"
-        style={{ opacity: visible ? 1 : 0 }}
-      >
+      <div className="relative z-10 flex h-full items-center justify-center px-4">
         <div className="mx-auto max-w-4xl text-center">
           <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.38em] text-amber-200/90 md:text-[11px]">
             Crypto • Markets • Alpha
