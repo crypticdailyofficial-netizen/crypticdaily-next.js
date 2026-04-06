@@ -13,6 +13,7 @@ import {
 } from "@/lib/sanity/queries";
 
 export const revalidate = 300;
+const HOME_HERO_IMAGE_SRC = "/images/main-article.webp";
 
 export default async function Homepage() {
   const [
@@ -35,7 +36,7 @@ export default async function Homepage() {
   // Preload the hero image via the /_next/image proxy so the browser can
   // start the request before the client JS renders the Hero component.
   const heroImageSrc =
-    featuredArticle?.coverImage ?? latestArticles[0]?.coverImage ?? null;
+    featuredArticle || latestArticles[0] ? HOME_HERO_IMAGE_SRC : null;
   const heroPreloadUrl = heroImageSrc
     ? `/_next/image?url=${encodeURIComponent(heroImageSrc)}&w=1080&q=75`
     : null;

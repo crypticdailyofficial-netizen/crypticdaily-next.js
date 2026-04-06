@@ -44,7 +44,7 @@ function TrendingSection({ articles }: { articles: Article[] }) {
             </span>
           </div>
           <span
-            className="text-[0.64rem] uppercase tracking-[0.22em] text-white/35"
+            className="text-[0.64rem] uppercase tracking-[0.22em] text-[#D6AE69]"
             style={{ fontFamily: theme.mono }}
           >
             Live
@@ -61,7 +61,7 @@ function TrendingSection({ articles }: { articles: Article[] }) {
               className="group grid grid-cols-[40px_1fr_auto] items-start gap-4 py-[15px]"
             >
               <span
-                className="pt-0.5 text-[1.05rem] font-bold leading-none text-white/18"
+                className="pt-0.5 text-[1.05rem] font-bold leading-none text-[#D6AE69]"
                 style={{ fontFamily: theme.mono }}
               >
                 {String(index + 1).padStart(2, "0")}

@@ -27,7 +27,10 @@ export function HomePageClient({
   categories,
   totalArticleCount,
 }: HomePageClientProps) {
-  const heroArticle = featuredArticle ?? latestArticles[0] ?? null;
+  const heroArticleRaw = featuredArticle ?? latestArticles[0] ?? null;
+  const heroArticle = heroArticleRaw
+    ? { ...heroArticleRaw, coverImage: "/images/main-article.webp", coverImageBlurDataURL: null }
+    : null;
   const [activeTab, setActiveTab] = useState("all");
 
   const [email, setEmail] = useState("");
